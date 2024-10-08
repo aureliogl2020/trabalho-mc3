@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Produtos</title>
+    <style>
+        /* Estilos básicos para os cards */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .card {
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card h3, .card p {
+            margin: 10px 0;
+        }
+
+        .card button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .card button:hover {
+            background-color: #45a049;
+        }
+
+        .card input[type="number"] {
+            width: 50px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Catálogo de Produtos</h1>
+    <div class="card-container" id="cardContainer">
+        <!-- Os cards serão inseridos aqui via JavaScript -->
+    </div>
+
+    <script>
+        // Função para carregar o arquivo CSV e processar os dados
+        async function carregarCSV() {
+            try {
+                // Carregar o arquivo CSV (você pode alterar o caminho, se necessário)
+                const response = await fetch('CSV/Produtos.csv');
+                const data = await response.text();
+
+                // Dividir o CSV por linhas, ignorando a primeira linha (cabeçalho)
+                const linhas = data.split('\n').slice(1); 
+
+                // Container onde os cards serão exibidos
+                const container = document.getElementById('cardContainer');
+
+                // Processar cada linha do CSV
+                linhas.forEach(linha => {
+                    let [produto, marca, valor, imagem] = linha.split(',');
+                    valor = valor.replace(',', '.'); // Substituir vírgula decimal por ponto
+
+                    // Criar um novo card
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+
+                    // Adicionar o conteúdo do card
+                    card.innerHTML = `
+                        <img src="${imagem.trim()}" alt="${produto.trim()}">
+                        <h3>${produto.trim()}</h3>
+                        <p>Marca: ${marca.trim()}</p>
+                        <p>Valor: R$ ${parseFloat(valor).toFixed(2)}</p>
+                        <label for="quantidade-${produto.trim()}">Quantidade:</label>
+                        <input type="number" id="quantidade-${produto.trim()}" value="1" min="1">
+                        <button onclick="adicionarAoCarrinho('${produto.trim()}', '${marca.trim()}', '${parseFloat(valor).toFixed(2)}', '${imagem.trim()}', 'quantidade-${produto.trim()}')">Comprar</button>
+                    `;
+
+                    // Adicionar o card ao container
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar o CSV:', error);
+            }
+        }
+
+        // Função para adicionar um produto ao carrinho
+        function adicionarAoCarrinho(produto, marca, valor, imagem, quantidadeInputId) {
+            let quantidade = parseInt(document.getElementById(quantidadeInputId).value);
+            let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+            // Verifica se o produto já existe no carrinho
+            let produtoExistente = carrinho.find(item => item.produto === produto);
+
+            if (produtoExistente) {
+                // Se o produto já existir, incrementa a quantidade e recalcula o valor
+                produtoExistente.quantidade += quantidade;
+                produtoExistente.valor = (parseFloat(produtoExistente.valor) + (parseFloat(valor) * quantidade)).toFixed(2);
+            } else {
+                // Se o produto não existir, adiciona um novo item ao carrinho
+                carrinho.push({
+                    produto,
+                    marca,
+                    valor: (parseFloat(valor) * quantidade).toFixed(2),
+                    imagem,
+                    quantidade: quantidade
+                });
+            }
+
+            // Atualiza o Local Storage
+            localStorage.setItem('carrinho', JSON.stringify(carrinho));
+
+            // Exibe um alerta informando que o produto foi adicionado
+            alert(`${quantidade} unidade(s) de "${produto}" adicionada(s) ao carrinho!`);
+        }
+
+        // Carregar os produtos do CSV ao carregar a página
+        carregarCSV();
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa de Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        .search-container input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .product-list {
+            list-style-type: none;
+            padding: 0;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .product-list li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .product-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Pesquisar produtos..." onkeyup="filterProducts()">
+</div>
+
+<ul class="product-list" id="productList">
+    <li>Produto A</li>
+    <li>Produto B</li>
+    <li>Produto C</li>
+    <li>Produto D</li>
+    <li>Produto E</li>
+</ul>
+
+<script>
+    function filterProducts() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const ul = document.getElementById('productList');
+        const li = ul.getElementsByTagName('li');
+
+        for (let i = 0; i < li.length; i++) {
+            const product = li[i].textContent.toLowerCase();
+            li[i].style.display = product.includes(filter) ? '' : 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
